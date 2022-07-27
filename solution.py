@@ -22,6 +22,7 @@ PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 #Object class Paddle
 class Paddle:
     COLOR = WHITE
+    VEL =  4        #Class variables that exist for all instances of the object "Paddle"
 
     def __init__(self, x, y, width, height):
         self.x = x
@@ -32,14 +33,41 @@ class Paddle:
     def draw(self, win):
         pygame.draw.rect(win, self.COLOR, (self.x, self.y, self.width, self.height))
 
+    def move(self, up = True): #If up = True, we can move the pedal up by the vel, otherwise, we move the pedal down
+        if up:                 #Weird logic for the x-y coordinate system, needs brush-up with pygame documentation
+            self.y -= self.VEL
+        else:
+            self.y += self.VEL
+
+
+
 #Draw the objects
 def draw(win, paddles):
     win.fill(BLACK)
 
     for paddle in paddles: 
         paddle.draw(win)
+
+    for i in range(10, HEIGHT, HEIGHT//20):
+        if i % 2 == 1:
+            continue
+        pygame.draw.rect(win, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
     
-    pygame.display.update()
+    pygame.display.update() #updates the model at a 60FPS pace
+
+
+def handle_paddle_movement(keys, left_paddle, right_paddle):
+    #Move the left paddle with w and s keys
+    if keys[pygame.K_w] and left_paddle.y - left_paddle.VEL >= 0:
+        left_paddle.move(up = True)
+    if keys[pygame.K_s] and left_paddle.y + left_paddle.VEL + left_paddle.height <= HEIGHT:
+        left_paddle.move(up = False)
+
+    #Move the right paddle with UP and DOWN keys
+    if keys[pygame.K_UP] and right_paddle.y - right_paddle.VEL >= 0:
+        right_paddle.move(up = True)
+    if keys[pygame.K_DOWN] and right_paddle.y + right_paddle.VEL + right_paddle.height <= HEIGHT:
+        right_paddle.move(up = False)
 
 
 #Main class
@@ -58,6 +86,9 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
                 break
+        
+        keys = pygame.key.get_pressed()
+        handle_paddle_movement(keys, left_paddle, right_paddle)
 
     pygame.quit()
 
