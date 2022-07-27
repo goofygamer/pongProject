@@ -19,6 +19,9 @@ BLACK = (0,0,0)
 #Paddle variables for height and width
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100  
 
+#Ball vars
+BALL_RADIUS = 7
+
 #Object class Paddle
 class Paddle:
     COLOR = WHITE
@@ -39,10 +42,29 @@ class Paddle:
         else:
             self.y += self.VEL
 
+class Ball:
+    COLOR = WHITE
+    MAX_VAL = 5
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.x_vel = self.MAX_VAL
+        self.y_vel = 0
 
 
+    def draw(self, win):
+        pygame.draw.circle(win, self.COLOR, (self.x, self.y), self.radius)
+
+    def move(self):
+        self.x += self.x_vel
+        self.y += self.y_vel
+
+
+
+        
 #Draw the objects
-def draw(win, paddles):
+def draw(win, paddles, ball):
     win.fill(BLACK)
 
     for paddle in paddles: 
@@ -53,6 +75,8 @@ def draw(win, paddles):
             continue
         pygame.draw.rect(win, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
     
+    ball.draw(win)
+
     pygame.display.update() #updates the model at a 60FPS pace
 
 
@@ -77,10 +101,13 @@ def main():
 
     left_paddle = Paddle(10, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
     right_paddle = Paddle(WIDTH - 10 - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    ball = Ball(WIDTH//2, HEIGHT//2, BALL_RADIUS)
+
+
 
     while run:
         clock.tick(FPS)
-        draw(WIN, [left_paddle, right_paddle]) #Redraws 60 time a second
+        draw(WIN, [left_paddle, right_paddle], ball) #Redraws 60 time a second
 
         for event in pygame.event.get(): #All of the events that will occur
             if event.type == pygame.QUIT:
@@ -90,6 +117,7 @@ def main():
         keys = pygame.key.get_pressed()
         handle_paddle_movement(keys, left_paddle, right_paddle)
 
+        ball.move()
     pygame.quit()
 
 if __name__ == '__main__':
