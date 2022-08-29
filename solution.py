@@ -79,6 +79,24 @@ def draw(win, paddles, ball):
 
     pygame.display.update() #updates the model at a 60FPS pace
 
+def handle_collision(ball, left_paddle, right_paddle):
+    if (ball.y + ball.radius >= HEIGHT) or (ball.y - ball.radius <= 0): #Ceiling collision
+        ball.y_vel *= -1
+
+    #Left Paddle
+    if ball.x_vel < 0:
+        if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
+            if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+                ball.x_vel *= -1
+    #Right Paddle
+    else:
+        if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
+            if ball.x + ball.radius >= right_paddle.x:
+                ball.x_vel *= -1
+
+
+
+    
 
 def handle_paddle_movement(keys, left_paddle, right_paddle):
     #Move the left paddle with w and s keys
@@ -118,6 +136,7 @@ def main():
         handle_paddle_movement(keys, left_paddle, right_paddle)
 
         ball.move()
+        handle_collision(ball, left_paddle, right_paddle)
     pygame.quit()
 
 if __name__ == '__main__':
