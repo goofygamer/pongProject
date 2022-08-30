@@ -22,6 +22,9 @@ PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 #Ball vars
 BALL_RADIUS = 7
 
+#Font for the scores
+SCORE_FONT = pygame.font.SysFont("Bell MT", 55)
+
 #Object class Paddle
 class Paddle:
     COLOR = WHITE
@@ -41,13 +44,17 @@ class Paddle:
             self.y -= self.VEL
         else:
             self.y += self.VEL
+    
+    #Reset the paddles to their starter positions
+    def reset(self, x):
+        self.y = HEIGHT//2 - PADDLE_HEIGHT//2
 
 class Ball:
     COLOR = WHITE
     MAX_VEL = 5
     def __init__(self, x, y, radius):
-        self.x = x
-        self.y = y
+        self.x = self.original_x = x
+        self.y = self.original_y = y
         self.radius = radius
         self.x_vel = self.MAX_VEL
         self.y_vel = 0
@@ -60,12 +67,24 @@ class Ball:
         self.x += self.x_vel
         self.y += self.y_vel
 
+    def reset(self):
+        self.x = self.original_x
+        self.y = self.original_y
+        self.y_vel = 0
+        self.x_vel *= -1
 
 
-        
 #Draw the objects
-def draw(win, paddles, ball):
+def draw(win, paddles, ball, left_score, right_score):
     win.fill(BLACK)
+
+    #Renders for the scoreboards
+    left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
+    right_score_text = SCORE_FONT.render(f"{right_score}", 1, WHITE)
+
+    #Drawing the scoreboards
+    win.blit(left_score_text, (WIDTH // 4 - left_score_text.get_width() // 2, 20))
+    win.blit(right_score_text, (((3 * WIDTH) // 4) - (right_score_text.get_width() // 2), 20))
 
     for paddle in paddles: 
         paddle.draw(win)
@@ -88,7 +107,8 @@ def handle_collision(ball, left_paddle, right_paddle):
         if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
             if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
                 ball.x_vel *= -1
-
+                
+                #Collision mechanism for the left paddle 
                 middle_y = left_paddle.y + left_paddle.height / 2
                 difference_in_y = middle_y - ball.y
                 reduction_factor = (left_paddle.height / 2) / ball.MAX_VEL
@@ -101,15 +121,14 @@ def handle_collision(ball, left_paddle, right_paddle):
             if ball.x + ball.radius >= right_paddle.x:
                 ball.x_vel *= -1
 
+
+                #Collision mechanism for the right paddle
                 middle_y = right_paddle.y + right_paddle.height / 2
                 difference_in_y = middle_y - ball.y
                 reduction_factor = (right_paddle.height / 2) / ball.MAX_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1 * y_vel
 
-
-
-    
 
 def handle_paddle_movement(keys, left_paddle, right_paddle):
     #Move the left paddle with w and s keys
@@ -134,11 +153,11 @@ def main():
     right_paddle = Paddle(WIDTH - 10 - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
     ball = Ball(WIDTH//2, HEIGHT//2, BALL_RADIUS)
 
-
+    left_score, right_score = 0, 0 #Scoreboard
 
     while run:
         clock.tick(FPS)
-        draw(WIN, [left_paddle, right_paddle], ball) #Redraws 60 time a second
+        draw(WIN, [left_paddle, right_paddle], ball, left_score, right_score) #Redraws 60 time a second
 
         for event in pygame.event.get(): #All of the events that will occur
             if event.type == pygame.QUIT:
@@ -150,6 +169,15 @@ def main():
 
         ball.move()
         handle_collision(ball, left_paddle, right_paddle)
+        
+        if ball.x < 0:
+            left_score += 1
+            ball.reset()
+            left_paddle.reset(x = 10), right_paddle.reset(x = WIDTH - 10)
+        if ball.x > WIDTH:
+            right_score += 1
+            ball.reset()
+            left_paddle.reset(x = 10), right_paddle.reset(x = WIDTH - 10)
     pygame.quit()
 
 if __name__ == '__main__':
