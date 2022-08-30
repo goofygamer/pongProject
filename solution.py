@@ -44,12 +44,12 @@ class Paddle:
 
 class Ball:
     COLOR = WHITE
-    MAX_VAL = 5
+    MAX_VEL = 5
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
         self.radius = radius
-        self.x_vel = self.MAX_VAL
+        self.x_vel = self.MAX_VEL
         self.y_vel = 0
 
 
@@ -88,11 +88,24 @@ def handle_collision(ball, left_paddle, right_paddle):
         if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
             if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
                 ball.x_vel *= -1
+
+                middle_y = left_paddle.y + left_paddle.height / 2
+                difference_in_y = middle_y - ball.y
+                reduction_factor = (left_paddle.height / 2) / ball.MAX_VEL
+                y_vel = difference_in_y / reduction_factor
+                ball.y_vel = -1 * y_vel
+
     #Right Paddle
     else:
         if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
             if ball.x + ball.radius >= right_paddle.x:
                 ball.x_vel *= -1
+
+                middle_y = right_paddle.y + right_paddle.height / 2
+                difference_in_y = middle_y - ball.y
+                reduction_factor = (right_paddle.height / 2) / ball.MAX_VEL
+                y_vel = difference_in_y / reduction_factor
+                ball.y_vel = -1 * y_vel
 
 
 
