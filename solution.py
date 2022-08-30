@@ -27,7 +27,7 @@ BALL_RADIUS = 7
 SCORE_FONT = pygame.font.SysFont("Bell MT", 55)
 
 #Winning score
-WINNING_SCORE = 3
+WINNING_SCORE = 10
 
 #Object class Paddle
 class Paddle:
